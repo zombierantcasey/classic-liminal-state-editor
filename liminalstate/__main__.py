@@ -1,3 +1,6 @@
+from liminalstate.internal.cli.cli import LiminalCLI
+
+
 import logging
 from logging.handlers import RotatingFileHandler
 
@@ -15,4 +18,5 @@ logging.basicConfig(level=logging.INFO, handlers=[console_handler, file_handler]
 logger = logging.getLogger(__name__)
 
 def main():
-    raise NotImplementedError
+    cli = LiminalCLI()
+    cli.cmdloop()

@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="liminalstate",
-    version="0.1.1",
+    version="0.1.2",
     author="Pierre MacKay",
     author_email="mail@pierremackay.com",
     install_requires=[
