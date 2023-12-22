@@ -1,7 +1,7 @@
 from liminalstate.internal.cli.cli import LiminalCLI
 
 
-import logging
+import logging, os
 from logging.handlers import RotatingFileHandler
 
 log_file = "wowedits.log"
@@ -19,5 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 def main():
-    cli = LiminalCLI()
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    config_path = os.path.join(current_dir, "config.ini")
+    cli = LiminalCLI(config_path)
     cli.cmdloop()
