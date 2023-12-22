@@ -2,16 +2,17 @@ import cmd, logging
 
 logger = logging.getLogger(__name__)
 
+
 class LiminalCLI(cmd.Cmd):
-    intro = 'Welcome to the liminal-state-shell. Type help or ? to list commands.'
-    prompt = '(wow-liminal-state) '
+    intro = "Welcome to the liminal-state-shell. Type help or ? to list commands."
+    prompt = "(wow-liminal-state) "
 
     def emptyline(self):
-        pass  
+        pass
 
-    def do_exit(self):
-        logger.info("Exiting the application.")
-        return True 
+    def do_exit(self, _):
+        logger.info("Application exit.")
+        return True
 
     def do_edit(self, line: str):
         args = line.split()
@@ -19,24 +20,25 @@ class LiminalCLI(cmd.Cmd):
             logger.error("Please enter which entry you want to edit (item, mob)")
             return
         
-        if args[0]  != "item" or args[0] != "mob":
-            logger.error(f"Invalid entry type. Please enter either item or mob: {args[0]}")
+        if args[0] != "item" and args[0] != "mob":
+            logger.error(
+                f"Invalid entry type. Please enter either item or mob: {args[0]}"
+            )
             return
-        
+
         id = input("Enter the database entry id you want to edit: ")
 
-        try: 
+        try:
             int(id)
         except ValueError:
             logger.error("Please enter a valid integer.")
             return
-        
+
         match args[0]:
             case "item":
                 raise NotImplementedError
             case "mob":
                 raise NotImplementedError
-        
-    def do_duplicate(self, line: str): 
+
+    def do_duplicate(self, line: str):
         raise NotImplementedError
-        

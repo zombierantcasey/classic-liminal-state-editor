@@ -17,6 +17,7 @@ rotating_handling.setFormatter(formatter)
 logging.basicConfig(level=logging.INFO, handlers=[console_handler, file_handler])
 logger = logging.getLogger(__name__)
 
+
 def main():
     cli = LiminalCLI()
     cli.cmdloop()

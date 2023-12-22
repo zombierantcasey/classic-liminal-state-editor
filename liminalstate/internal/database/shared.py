@@ -1,12 +1,15 @@
 import mysql.connector
 
-import logging 
+import logging
 
 logger = logging.getLogger(__name__)
 import mysql.connector
 from mysql.connector import Error
 
-def return_mysql_connection(host: str, user: str, password: str, database: str) -> mysql.connector.connection.MySQLConnection:
+
+def return_mysql_connection(
+    host: str, user: str, password: str, database: str
+) -> mysql.connector.connection.MySQLConnection:
     """
     Return a MySQL connection object.
 
@@ -22,13 +25,9 @@ def return_mysql_connection(host: str, user: str, password: str, database: str) 
 
     try:
         connection = mysql.connector.connect(
-            host=host,
-            user=user,
-            password=password,
-            database=database
+            host=host, user=user, password=password, database=database
         )
         return connection
     except Error as e:
         logger.error(f"Error while connecting to MySQL: {e}")
         return None
-
