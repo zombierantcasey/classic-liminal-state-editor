@@ -19,6 +19,31 @@ class LiminalCLI(cmd.Cmd):
     def do_exit(self, _):
         logger.info("Application exit.")
         return True
+    
+    def do_lookup(self, _):
+
+        type = input("Enter the type of entry you want to lookup (item, mob): ")
+
+        if type != "item" and type != "mob":
+            logger.error(
+                f"Invalid entry type. Please enter either item or mob: {type}"
+            )
+            return
+        
+        name = input("Enter the name of the item or mob you want to lookup: ")
+        
+        if type == "item":
+            row = self.base.get_single("name", name, self.base.world, "item_template")
+            if row is None:
+                logger.error(f"Could not find item: {name}")
+                return
+        elif type == "mob":
+            row = self.base.get_single("Name", name, self.base.world, "creature_template")
+            if row is None:
+                logger.error(f"Could not find mob: {name}")
+                return
+        
+        logger.info(f"ID: {row['entry']}")
 
     def do_edit(self, line: str):
         args = line.split()
