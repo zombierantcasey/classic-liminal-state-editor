@@ -46,9 +46,22 @@ class LiminalCLI(cmd.Cmd):
                     "entry", id, self.base.world, "item_template"
                 )
                 logger.info(f"Editing item: {row['name']}")
-                logger.info(f"Current entry: {row}")
+                table = "item_template"
             case "mob":
-                raise NotImplementedError
+                row = self.base.get_single("entry", id, self.base.world, "creature_template")
+                logger.info(f"Editing mob: {row['Name']}")
+                table = "creature_template"
+            
+        see_all = input("Would you like to view all fields? (y/n): ")
+
+        if see_all == "y":
+            for key, value in row.items():
+                logger.info(f"{key}: {value}")
+        elif see_all == "n":
+            pass
+        else:
+            logger.error("Invalid input.")
+            return
 
         field = input("Enter the field you want to edit: ")
         try:
@@ -60,7 +73,7 @@ class LiminalCLI(cmd.Cmd):
         logger.info(f"Current value: {field_value}")
         value = input("Enter the new value: ")
         success = self.base.update_single_field(
-            "entry", id, field, value, self.base.world, "item_template"
+            "entry", id, field, value, self.base.world, table
         )
         if not success:
             logger.error("Failed to update field.")

@@ -37,7 +37,7 @@ class LiminalBase:
             database,
         )
 
-        if table_name != "item_template" and table_name != "world":
+        if table_name != "item_template" and table_name != "creature_template":
             raise Exception("Invalid table name. Please use either player or world.")
 
         try:
@@ -83,7 +83,7 @@ class LiminalBase:
             database,
         )
 
-        if table_name not in ["item_template", "world"]:
+        if table_name not in ["item_template", "creature_template"]:
             raise Exception("Invalid table name. Please use either player or world.")
 
         try:
@@ -93,7 +93,7 @@ class LiminalBase:
             connection.commit()
             return cursor.rowcount > 0
         except Exception as e:
-            logger.error(f"Error: {e}")
+            logger.error(f"Error pushing change to database: {e}")
             connection.rollback()
             return False
         finally:
