@@ -17,6 +17,8 @@ class LiminalBase:
         except Exception as e:
             logger.error(f"Error: {e}")
 
+        self.table_names = ["item_template", "creature_template"]
+
     def get_single(self, key: str, value: str, database: str, table_name: str):
         """
         Get a single entry from the database.
@@ -37,7 +39,7 @@ class LiminalBase:
             database,
         )
 
-        if table_name != "item_template" and table_name != "creature_template":
+        if table_name not in self.table_names:
             raise Exception("Invalid table name. Please use either player or world.")
 
         try:
@@ -45,6 +47,41 @@ class LiminalBase:
             query = f"SELECT * FROM {table_name} WHERE {key} = %s LIMIT 1"
             cursor.execute(query, (value,))
             result = cursor.fetchone()
+            return result
+        except Exception as e:
+            logger.error(f"Error: {e}")
+        finally:
+            cursor.close()
+            connection.close()
+
+    def get_multiple(self, key: str, value: str, database: str, table_name: str):
+        """
+        Get multiple entries from the database.
+
+        Args:
+            key (str): The database column.
+            value (str): The value to search for.
+            table_name (str): The table name.
+
+        Returns:
+            RowType: Database row.
+        """
+
+        connection = return_mysql_connection(
+            self.parser["DB"]["db_host"],
+            self.parser["DB"]["db_username"],
+            self.parser["DB"]["db_password"],
+            database,
+        )
+
+        if table_name not in ["item_template", "creature_template"]:
+            raise Exception("Invalid table name. Please use either player or world.")
+
+        try:
+            cursor = connection.cursor(dictionary=True)
+            query = f"SELECT * FROM {table_name} WHERE {key} = %s"
+            cursor.execute(query, (value,))
+            result = cursor.fetchall()
             return result
         except Exception as e:
             logger.error(f"Error: {e}")
