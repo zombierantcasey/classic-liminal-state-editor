@@ -136,3 +136,40 @@ class LiminalBase:
         finally:
             cursor.close()
             connection.close()
+
+    def add_entry(self, database: str, table_name: str, **kwargs):
+        """
+        Add an entry to the database.
+
+        Args:
+            database (str): The database name.
+            table_name (str): The table name.
+            **kwargs: The column names and values.
+
+        Returns:
+            bool: True if the entry was added, False otherwise.
+        """
+
+        connection = return_mysql_connection(
+            self.parser["DB"]["db_host"],
+            self.parser["DB"]["db_username"],
+            self.parser["DB"]["db_password"],
+            database,
+        )
+
+        if table_name not in ["item_template", "creature_template"]:
+            raise Exception("Invalid table name. Please use either player or world.")
+
+        try:
+            cursor = connection.cursor()
+            query = f"INSERT INTO {table_name} ({', '.join(kwargs.keys())}) VALUES ({', '.join(['%s'] * len(kwargs))})"
+            cursor.execute(query, tuple(kwargs.values()))
+            connection.commit()
+            return cursor.rowcount > 0
+        except Exception as e:
+            logger.error(f"Error pushing change to database: {e}")
+            connection.rollback()
+            return False
+        finally:
+            cursor.close()
+            connection.close()

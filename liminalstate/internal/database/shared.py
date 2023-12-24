@@ -2,10 +2,10 @@ import mysql.connector
 
 import logging
 
-logger = logging.getLogger(__name__)
 import mysql.connector
 from mysql.connector import Error
 
+logger = logging.getLogger(__name__)
 
 def return_mysql_connection(
     host: str, user: str, password: str, database: str
