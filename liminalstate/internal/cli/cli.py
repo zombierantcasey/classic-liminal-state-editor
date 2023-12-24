@@ -17,25 +17,33 @@ class LiminalCLI(cmd.Cmd):
         pass
 
     def do_exit(self, _):
+        """
+        Exit the application.
+        """
+
         logger.info("Application exit.")
         return True
 
-    def do_lookup(self, _):
-        type = input("Enter the type of entry you want to lookup (item, mob): ")
+    def do_lookup(self, line):
+        """
+        Lookup an item or mob by name - will rturn all entries with that name and their respective fields/values.
+        """
+        
+        split_line = line.split()
 
-        if type != "item" and type != "mob":
-            logger.error(f"Invalid entry type. Please enter either item or mob: {type}")
+        if split_line[0] != "item" and split_line[0] != "mob":
+            logger.error(f"Invalid entry type. Please enter either item or mob, not: {split_line[0]}")
             return
 
         name = input("Enter the name of the item or mob you want to lookup: ")
 
-        if type == "item":
+        if split_line[0] == "item":
             row = self.base.get_multiple("name", name, self.base.world, "item_template")
             if row is None:
                 logger.error(f"Could not find item: {name}")
                 return
-        elif type == "mob":
-            row = self.base.get_single(
+        elif split_line[0] == "mob":
+            row = self.base.get_multiple(
                 "Name", name, self.base.world, "creature_template"
             )
             if row is None:
@@ -43,13 +51,16 @@ class LiminalCLI(cmd.Cmd):
                 return
             
         logger.info(f"Found {len(row)} entries.")
+
         for entry in row:
-            logger.info(f"ID: {entry['entry']}")
             for key, value in entry.items():
                 logger.info(f"{key}: {value}")
             logger.info("--------------------")
 
     def do_edit(self, line: str):
+        """
+        Edit an item or mob by id. Will list all fields and their values, and allow you to edit them.
+        """
         args = line.split()
         if len(args) == 0:
             logger.error("Please enter which entry you want to edit (item, mob)")
@@ -93,14 +104,14 @@ class LiminalCLI(cmd.Cmd):
                 pass
             else:
                 logger.error("Invalid input.")
-                return
+                continue
 
             field = input("Enter the field you want to edit: ")
             try:
                 field_value = row[field]
             except KeyError:
                 logger.error(f"Invalid field: {field}")
-                return
+                continue
 
             logger.info(f"Editing column: {field}")
             logger.info(f"Current value: {field_value}")
@@ -116,7 +127,7 @@ class LiminalCLI(cmd.Cmd):
                     increase_percent = float(increase_percent)
                 except ValueError:
                     logger.error("Not a valid float value.")
-                    return
+                    continue
                 value = int(field_value * (1 + increase_percent))
             else:
                 value = input("Enter the new value: ")
