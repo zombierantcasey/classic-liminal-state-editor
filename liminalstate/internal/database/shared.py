@@ -1,5 +1,3 @@
-import mysql.connector
-
 import logging
 
 import mysql.connector

@@ -28,6 +28,10 @@ class LiminalCLI(cmd.Cmd):
         """
         Lookup an item or mob by name - will rturn all entries with that name and their respective fields/values.
         """
+
+        if len(line) == 0:
+            logger.error("Please enter which entry you want to lookup (item, mob)")
+            return
         
         split_line = line.split()
 
@@ -38,13 +42,13 @@ class LiminalCLI(cmd.Cmd):
         name = input("Enter the name of the item or mob you want to lookup: ")
 
         if split_line[0] == "item":
-            row = self.base.get_multiple("name", name, self.base.world, "item_template")
+            row = self.base.get_multiple("name", name, "world", "item_template")
             if row is None:
                 logger.error(f"Could not find item: {name}")
                 return
         elif split_line[0] == "mob":
             row = self.base.get_multiple(
-                "Name", name, self.base.world, "creature_template"
+                "Name", name, "world", "creature_template"
             )
             if row is None:
                 logger.error(f"Could not find mob: {name}")
@@ -84,13 +88,13 @@ class LiminalCLI(cmd.Cmd):
             match args[0]:
                 case "item":
                     row = self.base.get_single(
-                        "entry", id, self.base.world, "item_template"
+                        "entry", id, "world", "item_template"
                     )
                     logger.info(f"Editing item: {row['name']}")
                     table = "item_template"
                 case "mob":
                     row = self.base.get_single(
-                        "entry", id, self.base.world, "creature_template"
+                        "entry", id, "world", "creature_template"
                     )
                     logger.info(f"Editing mob: {row['Name']}")
                     table = "creature_template"
@@ -133,7 +137,7 @@ class LiminalCLI(cmd.Cmd):
                 value = input("Enter the new value: ")
 
             success = self.base.update_single_field(
-                "entry", id, field, value, self.base.world, table
+                "entry", id, field, value, "world", table
             )
 
             if not success:
