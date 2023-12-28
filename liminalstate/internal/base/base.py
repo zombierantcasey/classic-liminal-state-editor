@@ -43,8 +43,6 @@ class LiminalBase:
             database=self.parser["DB"]["realm_database"],
         )
 
-        self.table_names = ["item_template", "creature_template"]
-
     def get_connection(
         self, database: str
     ) -> mysql.connector.pooling.PooledMySQLConnection:
@@ -140,24 +138,29 @@ class LiminalBase:
             success = cursor.rowcount > 0
         return success
 
-    def add_entry(self, database_type: str, table_name: str, **kwargs) -> bool:
+    def add_entry(self, database_type: str, table_name: str, key_value: dict) -> bool:
         """
         Add an entry to the database.
 
         Args:
             database_type (str): The type of database ('world' or 'player').
-            table_name (str): The name of the table to add to.
+            table_name (str): The name of the table to add an entry to.
+            key_value (dict): A dictionary where the keys are column names and the values are the associated values.
 
         Returns:
             bool: True if the entry was successfully added, False otherwise.
         """
 
-        with self.get_connection(database_type) as connection:
-            cursor = connection.cursor()
-            columns = ", ".join(kwargs.keys())
-            placeholders = ", ".join(["%s"] * len(kwargs))
-            query = f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders})"
-            cursor.execute(query, tuple(kwargs.values()))
-            connection.commit()
-            success = cursor.rowcount > 0
+        try:
+            with self.get_connection(database_type) as connection:
+                cursor = connection.cursor()
+                columns = ", ".join(key_value.keys())
+                placeholders = ", ".join(["%s"] * len(key_value))
+                query = f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders})"
+                cursor.execute(query, tuple(key_value.values()))
+                connection.commit()
+                success = cursor.rowcount > 0
+        except Exception as e:
+            logger.error(f"Failed to add entry: {e}")
+            success = False
         return success
