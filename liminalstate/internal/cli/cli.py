@@ -23,6 +23,22 @@ class LiminalCLI(cmd.Cmd):
 
         logger.info("Application exit.")
         return True
+    
+    def cmdloop(self):
+        """
+        Override the default cmdloop method to handle KeyboardInterrupt.
+        """
+
+        print(self.intro)
+        
+        while True:
+            try:
+                super().cmdloop(intro="")
+                break 
+            except KeyboardInterrupt:
+                print("^C")
+                continue
+
 
     def do_lookup(self, line):
         """
