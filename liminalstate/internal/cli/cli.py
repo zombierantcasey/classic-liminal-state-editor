@@ -195,10 +195,13 @@ class LiminalCLI(cmd.Cmd):
         )
 
         if split_line[0] == "item":
+            database = "world"
             table = "item_template"
         elif split_line[0] == "mob":
+            database = "world"
             table = "creature_template"
         elif split_line[0] == "quest":
+            database = "world"
             table = "quest_template"
 
         while True:
@@ -235,10 +238,9 @@ class LiminalCLI(cmd.Cmd):
             if new_value == "":
                 continue
             row[key] = new_value
+
+        success = self.base.add_entry(database, table, row)
+
+        if success:
+            logger.info("Successfully added entry.")
         
-        if split_line[0] == "item":
-            self.base.add_entry("world", "item_template", row)
-        elif split_line[0] == "mob":
-            self.base.add_entry("world", "creature_template", row)
-        elif split_line[0] == "quest":
-            self.base.add_entry("world", "quest_template", row)
