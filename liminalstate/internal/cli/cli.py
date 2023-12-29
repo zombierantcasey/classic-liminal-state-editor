@@ -24,32 +24,51 @@ class LiminalCLI(cmd.Cmd):
         logger.info("Application exit.")
         return True
 
+    def cmdloop(self):
+        """
+        Override the default cmdloop method to handle KeyboardInterrupt.
+        """
+
+        print(self.intro)
+
+        while True:
+            try:
+                super().cmdloop(intro="")
+                break
+            except KeyboardInterrupt:
+                print("^C")
+                continue
+
     def do_lookup(self, line):
         """
         Lookup an item or mob by name - will rturn all entries with that name and their respective fields/values.
         """
-        
+
+        if len(line) == 0:
+            logger.error("Please enter which entry you want to lookup (item, mob)")
+            return
+
         split_line = line.split()
 
         if split_line[0] != "item" and split_line[0] != "mob":
-            logger.error(f"Invalid entry type. Please enter either item or mob, not: {split_line[0]}")
+            logger.error(
+                f"Invalid entry type. Please enter either item or mob, not: {split_line[0]}"
+            )
             return
 
         name = input("Enter the name of the item or mob you want to lookup: ")
 
         if split_line[0] == "item":
-            row = self.base.get_multiple("name", name, self.base.world, "item_template")
+            row = self.base.get_multiple("name", name, "world", "item_template")
             if row is None:
                 logger.error(f"Could not find item: {name}")
                 return
         elif split_line[0] == "mob":
-            row = self.base.get_multiple(
-                "Name", name, self.base.world, "creature_template"
-            )
+            row = self.base.get_multiple("Name", name, "world", "creature_template")
             if row is None:
                 logger.error(f"Could not find mob: {name}")
                 return
-            
+
         logger.info(f"Found {len(row)} entries.")
 
         for entry in row:
@@ -83,14 +102,12 @@ class LiminalCLI(cmd.Cmd):
         while True:
             match args[0]:
                 case "item":
-                    row = self.base.get_single(
-                        "entry", id, self.base.world, "item_template"
-                    )
+                    row = self.base.get_single("entry", id, "world", "item_template")
                     logger.info(f"Editing item: {row['name']}")
                     table = "item_template"
                 case "mob":
                     row = self.base.get_single(
-                        "entry", id, self.base.world, "creature_template"
+                        "entry", id, "world", "creature_template"
                     )
                     logger.info(f"Editing mob: {row['Name']}")
                     table = "creature_template"
@@ -133,7 +150,7 @@ class LiminalCLI(cmd.Cmd):
                 value = input("Enter the new value: ")
 
             success = self.base.update_single_field(
-                "entry", id, field, value, self.base.world, table
+                "entry", id, field, value, "world", table
             )
 
             if not success:
@@ -150,5 +167,80 @@ class LiminalCLI(cmd.Cmd):
                 logger.error("Invalid input.")
                 continue
 
-    def do_duplicate(self, line: str):
-        raise NotImplementedError
+    def do_wizard(self, line):
+        """
+        Wizard to easily create/dupe items, mobs and quests.
+        """
+
+        if len(line) == 0:
+            logger.error(
+                "Please enter which entry you want to create (item, mob, quest)"
+            )
+            return
+
+        split_line = line.split()
+
+        if (
+            split_line[0] != "item"
+            and split_line[0] != "mob"
+            and split_line[0] != "quest"
+        ):
+            logger.error(
+                f"Invalid entry type. Please enter either item, mob or quest, not: {split_line[0]}"
+            )
+            return
+
+        logger.info(
+            "You are in the wizard. The wizard will guide you through the process of creating a new entry. In order to create a new entry, you must duplicate an existing one. Please enter the id of the entry you want to duplicate."
+        )
+
+        if split_line[0] == "item":
+            database = "world"
+            table = "item_template"
+        elif split_line[0] == "mob":
+            database = "world"
+            table = "creature_template"
+        elif split_line[0] == "quest":
+            database = "world"
+            table = "quest_template"
+
+        while True:
+            id = input("Enter the id of the entry you want to duplicate: ")
+
+            try:
+                int(id)
+            except ValueError:
+                logger.error("Please enter a valid integer.")
+                continue
+
+            row = self.base.get_single("entry", id, "world", table)
+
+            if row is None:
+                logger.error(f"Could not find entry with id: {id}")
+                continue
+
+            logger.info("Found entry:")
+            for key, value in row.items():
+                logger.info(f"{key}: {value}")
+
+            confirm = input("Is this the entry you want to duplicate? (y/n): ")
+
+            if confirm == "y":
+                break
+            elif confirm == "n":
+                continue
+            else:
+                logger.error("Invalid input.")
+                continue
+        for key, value in row.items():
+            logger.info(f"{key}: {value}")
+            new_value = input(f"Enter the new value for {key}: ")
+            if new_value == "":
+                continue
+            row[key] = new_value
+
+        success = self.base.add_entry(database, table, row)
+
+        if success:
+            logger.info("Successfully added entry.")
+        

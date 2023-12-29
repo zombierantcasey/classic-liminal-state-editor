@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="liminalstate",
-    version="0.1.8",
+    version="0.1.12",
     author="Pierre MacKay",
     author_email="mail@pierremackay.com",
     install_requires=["mysql-connector-python"],
